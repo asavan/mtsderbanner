@@ -1,9 +1,12 @@
 package simplereport;
 
+import org.apache.commons.io.FileUtils;
+
 import java.io.*;
 
 public class CsvReport extends AbstractSimpleReport {
     private static final char DELIMITER = ';';
+    private static final String CHARSET_NAME = "cp1251";
     private int rowNum = 0;
 
 
@@ -63,7 +66,7 @@ public class CsvReport extends AbstractSimpleReport {
 
 
     @Override
-    public String save(String dir) {
+    public String save(String dir) throws IOException {
         if (dir == null || dir.length() == 0) {
             dir = "";
         } else if (!dir.endsWith("/") && !dir.endsWith("\\")) {
@@ -76,16 +79,8 @@ public class CsvReport extends AbstractSimpleReport {
         return fullFileName;
     }
 
-    private static void stringToFile(String tx, String fileName) {
-        try {
-            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileName), "cp1251"));
-            bw.write(tx);
-            bw.close();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
+    private static void stringToFile(String tx, String fileName) throws IOException {
+        FileUtils.writeStringToFile(new File(fileName), tx, CHARSET_NAME);
     }
 
 

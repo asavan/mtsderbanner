@@ -1,5 +1,6 @@
 package simplereport;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
@@ -21,7 +22,7 @@ public interface SimpleReport {
     /**
      * @return fullFilename to saved report
      */
-    String save(String dirName);
+    String save(String dirName) throws IOException;
 
     String toString();
 
