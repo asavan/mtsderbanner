@@ -87,6 +87,23 @@
             </plugin>
 
             <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                </configuration>
+            </plugin>
+
+            <plugin>
                 <groupId>com.akathist.maven.plugins.launch4j</groupId>
                 <artifactId>launch4j-maven-plugin</artifactId>
                 <version>1.7.17</version>
@@ -100,7 +117,7 @@
                         <configuration>
                             <headerType>console</headerType>
                             <outfile>deploy/mtsParser.exe</outfile>
-                            <jar>deploy/${project.artifactId}-${project.version}.jar</jar>
+                            <jar>target/${project.artifactId}-${project.version}-jar-with-dependencies.jar</jar>
                             <errTitle>Hello world</errTitle>
                             <icon>src/main/resources/mts.ico</icon>
                             <classPath>
