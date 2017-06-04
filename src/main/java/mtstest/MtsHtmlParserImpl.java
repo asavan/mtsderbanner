@@ -33,7 +33,7 @@ public class MtsHtmlParserImpl implements MtsHtmlParser {
 
     public static List<String> parsePAGENPageStatic(String url) throws IOException {
         List<String> urls = new ArrayList<>(20);
-        log.debug(url);
+        log.info(url);
         Document doc = Jsoup.connect(url).timeout(10000).get();
         Elements phoneLink = doc.select(".image-l");
         for (Element e : phoneLink) {
@@ -44,6 +44,7 @@ public class MtsHtmlParserImpl implements MtsHtmlParser {
     }
 
     public static SmartfonInfo parseOnePage(String url) throws IOException {
+        log.debug(url);
         SmartfonInfo info = new SmartfonInfo();
         info.setOriginalUrl(url);
 

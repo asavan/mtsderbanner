@@ -11,6 +11,8 @@ import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class MtsParserServiceImpl implements MtsParser {
     private static final String BASE_URL = "http://www.shop.mts.ru";
@@ -109,12 +111,7 @@ public class MtsParserServiceImpl implements MtsParser {
         List<Callable<List<String>>> tasks = new ArrayList<>(pages);
         for (int i = 0; i < pages; i++) {
             final String url = BASE_URL + "/" + typeName + "/?PAGEN_1=" + (i + 1);
-            Callable<List<String>> task = new Callable<List<String>>() {
-                public List<String> call() throws Exception {
-                    log.info(url);
-                    return mtsHtmlParser.parsePAGENPage(url);
-                }
-            };
+            Callable<List<String>> task = () -> mtsHtmlParser.parsePAGENPage(url);
             tasks.add(task);
         }
 
@@ -141,11 +138,7 @@ public class MtsParserServiceImpl implements MtsParser {
         log.info("Completed in " + difference / 1000L);
     }
 
-    private interface Processor<T> {
-        void process(T value);
-    }
-
-    private class ListProcessor implements Processor<List<String>> {
+    private class ListProcessor implements Consumer<List<String>> {
 
         SimpleReport report;
 
@@ -154,13 +147,13 @@ public class MtsParserServiceImpl implements MtsParser {
         }
 
         @Override
-        public void process(List<String> value) {
-            processUrls(value, report);
+        public void accept(List<String> value) {
+            processUrls(value, new OnePageProcessor(report));
         }
     }
 
 
-    private class OnePageProcessor implements Processor<SmartfonInfo> {
+    private class OnePageProcessor implements Consumer<SmartfonInfo> {
 
         SimpleReport report;
 
@@ -169,7 +162,7 @@ public class MtsParserServiceImpl implements MtsParser {
         }
 
         @Override
-        public void process(SmartfonInfo value) {
+        public void accept(SmartfonInfo value) {
             if (value == null) {
                 log.error("Wrong future");
             } else {
@@ -178,7 +171,7 @@ public class MtsParserServiceImpl implements MtsParser {
         }
     }
 
-    private static <T> void processTasks(List<Callable<T>> tasks, boolean async, CompletionService<T> completionService, Processor<T> processor) {
+    private static <T> void processTasks(List<Callable<T>> tasks, boolean async, CompletionService<T> completionService, Consumer<T> processor) {
         if (async) {
             for (Callable<T> t : tasks) {
                 completionService.submit(t);
@@ -194,7 +187,7 @@ public class MtsParserServiceImpl implements MtsParser {
                 } else {
                     value = t.call();
                 }
-                processor.process(value);
+                processor.accept(value);
             } catch (Exception e) {
                 log.error("Error...", e);
             }
@@ -202,18 +195,11 @@ public class MtsParserServiceImpl implements MtsParser {
         log.info("...Done");
     }
 
-    private void processUrls(List<String> urls, SimpleReport report) {
-        List<Callable<SmartfonInfo>> tasks = new ArrayList<>(urls.size());
-        for (final String smUrl : urls) {
-            Callable<SmartfonInfo> task = new Callable<SmartfonInfo>() {
-                public SmartfonInfo call() throws IOException {
-                    log.debug(smUrl);
-                    return mtsHtmlParser.parseOne(smUrl);
-                }
-            };
-            tasks.add(task);
-        }
+    private void processUrls(List<String> urls, Consumer<SmartfonInfo> processor) {
+        List<Callable<SmartfonInfo>> tasks2 = urls.stream()
+                .map(it -> (Callable<SmartfonInfo>) () -> mtsHtmlParser.parseOne(it))
+                .collect(Collectors.toList());
 
-        processTasks(tasks, asyncPhones, completionServicePhone, new OnePageProcessor(report));
+        processTasks(tasks2, asyncPhones, completionServicePhone, processor);
     }
 }
