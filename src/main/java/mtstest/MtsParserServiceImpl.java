@@ -81,7 +81,7 @@ public class MtsParserServiceImpl implements MtsParser {
         return report;
     }
 
-    private File getCategoriesFile(String name) {
+    private static File getCategoriesFile(String name) {
         return new File(BASE_DIR, name + ".txt");
     }
 
@@ -127,7 +127,7 @@ public class MtsParserServiceImpl implements MtsParser {
                 report.addCell(cat);
             }
             String catAsString = String.join(SEPARATOR, categories);
-            FileUtils.write(getCategoriesFile(typeName), catAsString, ENCODING);
+            FileUtils.writeStringToFile(getCategoriesFile(typeName), catAsString, ENCODING);
         }
 
         report.save("./reports");
