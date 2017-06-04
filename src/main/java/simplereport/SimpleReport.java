@@ -1,17 +1,12 @@
 package simplereport;
 
 import java.util.Date;
+import java.util.List;
 
 public interface SimpleReport {
     SimpleReport addRow();
 
-    SimpleReport addRow(Object... cells);
-
-    SimpleReport addCaptionRow(Object... cells);
-
-    SimpleReport skipRow();
-
-    SimpleReport skipRow(int countRow);
+    SimpleReport addCaptionRow(List cells);
 
     SimpleReport addCell(String s);
 
@@ -19,11 +14,9 @@ public interface SimpleReport {
 
     SimpleReport addCell(Date dt);
 
-    SimpleReport addCells(Object... cells);
+    SimpleReport addCells(List cells);
 
     SimpleReport skipCell();
-
-    SimpleReport skipCell(int countCell);
 
     /**
      * @return fullFilename to saved report

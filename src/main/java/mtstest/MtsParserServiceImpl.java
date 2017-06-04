@@ -1,7 +1,6 @@
 package mtstest;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import simplereport.CsvReport;
 import simplereport.SimpleReport;
@@ -19,6 +18,7 @@ public class MtsParserServiceImpl implements MtsParser {
     private static final Charset ENCODING = Charset.forName("UTF-8");
     private static final String SEPARATOR = ";";
     private static final String DELIMETR = "\\s*;\\s*";
+    private static final String[] DEFAULT_CATEGORIES = {"Артикул", "Фоточка", "Урл в магазине"};
     private Set<String> categories = new LinkedHashSet<>();
     private final boolean asyncPages;
     private final boolean asyncPhones;
@@ -61,21 +61,26 @@ public class MtsParserServiceImpl implements MtsParser {
 
     private SimpleReport generateReport(String name) throws IOException {
         SimpleReport report = new CsvReport(name);
-        String[] mainCat = {"Артикул", "Фоточка", "Урл в магазине"};
+        List<String> mainCat = new ArrayList<>(Arrays.asList(DEFAULT_CATEGORIES));
 
         Path currentRelativePath = java.nio.file.Paths.get("");
         String s = currentRelativePath.toAbsolutePath().toString();
         log.info("Current relative path is: " + s);
-        File catFile = new File(BASE_DIR, name + ".txt");
+        File catFile = getCategoriesFile(name);
         if (catFile.exists()) {
             String cats = FileUtils.readFileToString(catFile, ENCODING);
             String[] catsFromFile = cats.trim().split(DELIMETR);
-            categories.addAll(java.util.Arrays.asList(catsFromFile));
-            mainCat = org.apache.commons.lang3.ArrayUtils.addAll(mainCat, catsFromFile);
+            List<String> catList = Arrays.asList(catsFromFile);
+            categories.addAll(catList);
+            mainCat.addAll(catList);
         }
 
-        report.addRow(mainCat);
+        report.addCaptionRow(mainCat);
         return report;
+    }
+
+    private File getCategoriesFile(String name) {
+        return new File(BASE_DIR, name + ".txt");
     }
 
     private void addRowToReport(SimpleReport report, SmartfonInfo info) {
@@ -124,8 +129,8 @@ public class MtsParserServiceImpl implements MtsParser {
             for (String cat : categories) {
                 report.addCell(cat);
             }
-            String catAsString = StringUtils.join(categories, SEPARATOR);
-            FileUtils.write(new File("./" + typeName + ".txt"), catAsString, ENCODING);
+            String catAsString = String.join(SEPARATOR, categories);
+            FileUtils.write(getCategoriesFile(typeName), catAsString, ENCODING);
         }
 
         report.save("./reports");

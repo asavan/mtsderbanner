@@ -3,13 +3,14 @@ package simplereport;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 public abstract class AbstractSimpleReport implements SimpleReport {
-    protected final String fileName;
-    protected StringBuffer sb = new StringBuffer();
-    protected SimpleDateFormat simpleDateFormat = new SimpleDateFormat("d/MMMM/yyyy HH:mm:ss");
+    final String fileName;
+    final StringBuilder sb = new StringBuilder();
+    private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("d/MMMM/yyyy HH:mm:ss");
 
-    protected AbstractSimpleReport(String fileName) {
+    AbstractSimpleReport(String fileName) {
         this.fileName = fileName;
     }
 
@@ -36,39 +37,18 @@ public abstract class AbstractSimpleReport implements SimpleReport {
     }
 
     @Override
-    public SimpleReport skipRow(int countRow) {
-        while (countRow-- > 0) {
-            skipRow();
-        }
-        return this;
-    }
-
-    @Override
-    public SimpleReport skipCell(int countCell) {
-        while (countCell-- > 0) {
-            skipCell();
-        }
-        return this;
-    }
-
-    @Override
-    public SimpleReport addCells(Object... cells) {
+    public SimpleReport addCells(List cells) {
         for (Object cell : cells) {
             addCell(cell);
         }
         return this;
     }
 
-    @Override
-    public SimpleReport addRow(Object... cells) {
-        addRow();
-        addCells(cells);
-        return this;
-    }
 
     @Override
-    public SimpleReport addCaptionRow(Object... cells) {
-        addRow(cells);
+    public SimpleReport addCaptionRow(List cells) {
+        addRow();
+        addCells(cells);
         return this;
     }
 

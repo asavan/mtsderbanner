@@ -3,38 +3,29 @@ package simplereport;
 import java.io.*;
 
 public class CsvReport extends AbstractSimpleReport {
-    private char delimiter = ';';
+    private static final char DELIMITER = ';';
     private int rowNum = 0;
 
-    public char getDelimiter() {
-        return delimiter;
-    }
-
-    public void setDelimiter(char delimiter) {
-        this.delimiter = delimiter;
-    }
 
     public CsvReport(String fileName) {
         super(fileName + ".csv");
     }
 
+    public CsvReport(String fileName, String ext) {
+        super(fileName + "." + ext);
+    }
+
     @Override
     public SimpleReport addRow() {
         if (rowNum > 0) {
-            sb.append("\r");
+            sb.append("\r\n");
         }
         rowNum++;
         return this;
     }
 
-    @Override
-    public SimpleReport skipRow() {
-        sb.append("\r");
-        return this;
-    }
-
     private String csvEscapeString(String s) {
-        return csvEscapeString(s, delimiter);
+        return csvEscapeString(s, DELIMITER);
     }
 
     private static String csvEscapeString(String s, char delimiter) {
@@ -60,13 +51,13 @@ public class CsvReport extends AbstractSimpleReport {
         if (s != null) {
             sb.append(csvEscapeString(s));
         }
-        sb.append(';');
+        sb.append(DELIMITER);
         return this;
     }
 
     @Override
     public SimpleReport skipCell() {
-        sb.append(';');
+        sb.append(DELIMITER);
         return this;
     }
 

@@ -52,7 +52,7 @@ public class MtsHtmlParserImpl implements MtsHtmlParser {
         info.setArticul(artikul.html().trim());
         Elements img = doc.select(".thumbs-holder a");
         String imageUrl = img.attr("data-large-image");
-        if (org.apache.commons.lang3.StringUtils.isEmpty(imageUrl)) {
+        if (imageUrl == null || imageUrl.isEmpty()) {
             log.error("Empty image " + url);
             return null;
         }
