@@ -1,7 +1,8 @@
 package mtstest;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import simplereport.CsvReport;
 import simplereport.SimpleReport;
 
@@ -26,7 +27,7 @@ public class MtsParserServiceImpl implements MtsParser {
     private final boolean asyncPhones;
     private final MtsHtmlParser mtsHtmlParser;
 
-    private static final Logger log = Logger.getLogger(MtsParserServiceImpl.class);
+    private static final Logger log = LogManager.getLogger(MtsParserServiceImpl.class);
     private final CompletionService<List<String>> completionService;
     private final CompletionService<SmartfonInfo> completionServicePhone;
     private final ExecutorService executorServicePhone;

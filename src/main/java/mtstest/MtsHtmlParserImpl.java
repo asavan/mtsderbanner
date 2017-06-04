@@ -1,6 +1,7 @@
 package mtstest;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -17,7 +18,7 @@ import java.util.Map;
  */
 public class MtsHtmlParserImpl implements MtsHtmlParser {
 
-    private static final Logger log = Logger.getLogger(MtsHtmlParserImpl.class);
+    private static final Logger log = LogManager.getLogger(MtsHtmlParserImpl.class);
     private static final String BASE_URL = "http://www.shop.mts.ru";
 
 
