@@ -102,7 +102,7 @@
                             <outfile>deploy/mtsParser.exe</outfile>
                             <jar>deploy/${project.artifactId}-${project.version}.jar</jar>
                             <errTitle>Hello world</errTitle>
-                            <icon>favicon.ico</icon>
+                            <icon>src/main/resources/mts.ico</icon>
                             <classPath>
                                 <mainClass>mtstest.Starter</mainClass>
                                 <addDependencies>true</addDependencies>
