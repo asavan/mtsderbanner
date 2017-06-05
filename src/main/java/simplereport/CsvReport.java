@@ -3,10 +3,13 @@ package simplereport;
 import org.apache.commons.io.FileUtils;
 
 import java.io.*;
+import java.nio.charset.Charset;
 
 public class CsvReport extends AbstractSimpleReport {
     private static final char DELIMITER = ';';
     private static final String CHARSET_NAME = "cp1251";
+    private static final Charset ENCODING = Charset.forName("UTF-8");
+
     private int rowNum = 0;
 
 
@@ -80,7 +83,7 @@ public class CsvReport extends AbstractSimpleReport {
     }
 
     private static void stringToFile(String tx, String fileName) throws IOException {
-        FileUtils.writeStringToFile(new File(fileName), tx, CHARSET_NAME);
+        FileUtils.writeStringToFile(new File(fileName), tx, ENCODING);
     }
 
 
