@@ -1,5 +1,6 @@
 package mtstest;
 
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
@@ -11,13 +12,9 @@ public class MtsParserServiceImplTest {
 
     @Test
     public void testParseOnePage() throws Exception {
-        MtsHtmlParserImpl.parseOnePage("http://www.shop.mts.ru/smartfony/samsung/smartfon-galaxy-a5-2016-a510f-black.html");
-
-        MtsHtmlParserImpl.parseOnePage("http://www.shop.mts.ru/smartfony/samsung/smartfon-galaxy-a3-2016-sm-a310f-white.html");
-        MtsHtmlParserImpl.parseOnePage("http://www.shop.mts.ru/smartfony/samsung/smartfon-galaxy-a3-2016-sm-a310f-gold.html");
-
-        SmartfonInfo info = MtsHtmlParserImpl.parseOnePage("http://www.shop.mts.ru/smartfony/archos/smartfon-40-helium-4g-dual-sim-lte-black.html");
+        SmartfonInfo info = MtsHtmlParserImpl.parseOnePage("https://shop.mts.ru/product/smartfon-apple-iphone-11-128gb-chernyj");
         assertNotNull(info);
+        assertNotEquals("", info.getArticul());
         System.out.println(info.getArticul());
     }
 

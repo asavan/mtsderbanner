@@ -50,7 +50,7 @@ public class MtsHtmlParserImpl implements MtsHtmlParser {
         info.setOriginalUrl(url);
 
         Document doc = Jsoup.connect(url).timeout(30000).get();
-        Elements artikul = doc.select(".artikul a");
+        Elements artikul = doc.select(".sku > .select_all");
         info.setArticul(artikul.html().trim());
         Elements img = doc.select(".thumbs-holder a");
         String imageUrl = img.attr("data-large-image");
