@@ -9,6 +9,7 @@ import simplereport.SimpleReport;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.*;
@@ -18,11 +19,10 @@ import java.util.stream.Collectors;
 public class MtsParserServiceImpl implements MtsParser {
     private static final String BASE_URL = "http://www.shop.mts.ru";
     private static final String BASE_DIR = ".";
-    private static final Charset ENCODING = Charset.forName("UTF-8");
+    private static final Charset ENCODING = StandardCharsets.UTF_8;
     private static final String SEPARATOR = ";";
-    private static final String DELIMETR = "\\s*;\\s*";
+    private static final String DELIMITER = "\\s*;\\s*";
     private static final String[] DEFAULT_CATEGORIES = {"Артикул", "Фоточка", "Урл в магазине"};
-    private Set<String> categories = new LinkedHashSet<>();
     private final boolean asyncPages;
     private final boolean asyncPhones;
     private final MtsHtmlParser mtsHtmlParser;
@@ -55,14 +55,15 @@ public class MtsParserServiceImpl implements MtsParser {
     }
 
     @Override
-    public void exit() {
+    public void exit() throws InterruptedException {
         log.info("Start Exiting...");
         executorServicePhone.shutdown();
+        executorServicePhone.awaitTermination(5, TimeUnit.HOURS);
         log.info("Exit");
     }
 
 
-    private SimpleReport generateReport(String name) throws IOException {
+    private static SimpleReport generateReport(String name, Set<String> categories) throws IOException {
         SimpleReport report = new CsvReport(name);
         List<String> mainCat = new ArrayList<>(Arrays.asList(DEFAULT_CATEGORIES));
 
@@ -72,7 +73,7 @@ public class MtsParserServiceImpl implements MtsParser {
         File catFile = getCategoriesFile(name);
         if (catFile.exists()) {
             String cats = FileUtils.readFileToString(catFile, ENCODING);
-            String[] catsFromFile = cats.trim().split(DELIMETR);
+            String[] catsFromFile = cats.trim().split(DELIMITER);
             List<String> catList = Arrays.asList(catsFromFile);
             categories.addAll(catList);
             mainCat.addAll(catList);
@@ -86,7 +87,7 @@ public class MtsParserServiceImpl implements MtsParser {
         return new File(BASE_DIR, name + ".txt");
     }
 
-    private void addRowToReport(SimpleReport report, SmartfonInfo info) {
+    private static void addRowToReport(SimpleReport report, SmartfonInfo info, Set<String> categories) {
         categories.addAll(info.getProperties().keySet());
         report.addRow();
         report.addCell(info.getArticul());
@@ -107,7 +108,8 @@ public class MtsParserServiceImpl implements MtsParser {
     @Override
     public void parseList(String typeName, int pages) throws IOException {
         long lStartTime = new Date().getTime();
-        SimpleReport report = generateReport(typeName);
+        Set<String> categories = new LinkedHashSet<>();
+        SimpleReport report = generateReport(typeName, categories);
         int len = categories.size();
         List<Callable<List<String>>> tasks = new ArrayList<>(pages);
         for (int i = 0; i < pages; i++) {
@@ -116,7 +118,7 @@ public class MtsParserServiceImpl implements MtsParser {
             tasks.add(task);
         }
 
-        processTasks(tasks, asyncPages, completionService, new ListProcessor(report));
+        processTasks(tasks, asyncPages, completionService, new ListProcessor(report, categories));
 
 
         int newLen = categories.size();
@@ -133,7 +135,6 @@ public class MtsParserServiceImpl implements MtsParser {
 
         report.save("./reports");
         log.info(newLen);
-        categories = new java.util.LinkedHashSet<>();
         long lEndTime = new Date().getTime();
         long difference = lEndTime - lStartTime;
         log.info("Completed in " + difference / 1000L);
@@ -141,25 +142,30 @@ public class MtsParserServiceImpl implements MtsParser {
 
     private class ListProcessor implements Consumer<List<String>> {
 
-        SimpleReport report;
+        private final SimpleReport report;
+        private final Set<String> categories;
 
-        ListProcessor(SimpleReport report) {
+
+        ListProcessor(SimpleReport report, Set<String> categories) {
             this.report = report;
+            this.categories = categories;
         }
 
         @Override
         public void accept(List<String> value) {
-            processUrls(value, new OnePageProcessor(report));
+            processUrls(value, new OnePageProcessor(report, categories));
         }
     }
 
 
     private class OnePageProcessor implements Consumer<SmartfonInfo> {
 
-        SimpleReport report;
+        private final SimpleReport report;
+        private final Set<String> categories;
 
-        OnePageProcessor(SimpleReport report) {
+        OnePageProcessor(SimpleReport report, Set<String> categories) {
             this.report = report;
+            this.categories = categories;
         }
 
         @Override
@@ -167,7 +173,7 @@ public class MtsParserServiceImpl implements MtsParser {
             if (value == null) {
                 log.error("Wrong future");
             } else {
-                addRowToReport(report, value);
+                addRowToReport(report, value, categories);
             }
         }
     }

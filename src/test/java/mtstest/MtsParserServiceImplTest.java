@@ -1,7 +1,8 @@
 package mtstest;
 
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
@@ -16,7 +17,7 @@ public class MtsParserServiceImplTest {
         MtsHtmlParserImpl.parseOnePage("http://www.shop.mts.ru/smartfony/samsung/smartfon-galaxy-a3-2016-sm-a310f-gold.html");
 
         SmartfonInfo info = MtsHtmlParserImpl.parseOnePage("http://www.shop.mts.ru/smartfony/archos/smartfon-40-helium-4g-dual-sim-lte-black.html");
-        Assert.assertNotNull(info);
+        assertNotNull(info);
         System.out.println(info.getArticul());
     }
 

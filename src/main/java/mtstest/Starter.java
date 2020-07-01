@@ -3,7 +3,7 @@ package mtstest;
 import java.io.IOException;
 
 public class Starter {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, InterruptedException {
         MtsParser m = new MtsParserServiceImpl(true, true, 11);
         m.parseList("mobilnyye-telefony", 8);
         m.parseList("planshety", 11);
