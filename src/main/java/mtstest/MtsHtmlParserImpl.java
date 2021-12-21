@@ -2,6 +2,7 @@ package mtstest;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -9,6 +10,7 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,7 +21,7 @@ import java.util.Map;
 public class MtsHtmlParserImpl implements MtsHtmlParser {
 
     private static final Logger log = LogManager.getLogger(MtsHtmlParserImpl.class);
-    private static final String BASE_URL = "http://www.shop.mts.ru";
+    private static final String BASE_URL = "https://shop.mts.ru";
 
 
     @Override
@@ -35,13 +37,22 @@ public class MtsHtmlParserImpl implements MtsHtmlParser {
     public static List<String> parsePAGENPageStatic(String url) throws IOException {
         List<String> urls = new ArrayList<>(20);
         log.info(url);
-        Document doc = Jsoup.connect(url).timeout(10000).get();
-        Elements phoneLink = doc.select(".image-l");
+        Document doc = setupSpider(url)
+                .timeout(10000).get();
+        Elements phoneLink = doc.select(".card-product-description__heading");
         for (Element e : phoneLink) {
             String linkHref = e.attr("href").trim();
+            log.trace(linkHref);
             urls.add(BASE_URL + linkHref);
         }
         return urls;
+    }
+
+    private static Connection setupSpider(String url) {
+        return Jsoup.connect(url)
+                .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
+                .cookie("qrator_jsr", "1640121185.251.epgsWGX8g3NjlVtu-jmh4do4a7k8hsg7ge62tvndjo2jop1lb-00")
+                .cookie("qrator_jsid", "1640121185.251.epgsWGX8g3NjlVtu-28u85qqql4mdgpb0rl02s9erbfr1rqme");
     }
 
     public static SmartfonInfo parseOnePage(String url) throws IOException {
@@ -49,12 +60,10 @@ public class MtsHtmlParserImpl implements MtsHtmlParser {
         SmartfonInfo info = new SmartfonInfo();
         info.setOriginalUrl(url);
 
-        Document doc = Jsoup.connect(url).timeout(30000).get();
-        Elements artikul = doc.select(".sku > .select_all");
-        info.setArticul(artikul.html().trim());
-        Elements img = doc.select(".thumbs-holder a");
-        String imageUrl = img.attr("data-large-image");
-        if (imageUrl == null || imageUrl.isEmpty()) {
+        Document doc = setupSpider(url).timeout(30000).get();
+        Elements img = doc.select(".product-gallery-item__image");
+        String imageUrl = img.attr("data-src");
+        if (imageUrl.isEmpty()) {
             log.error("Empty image " + url);
             return null;
         }
@@ -71,7 +80,7 @@ public class MtsHtmlParserImpl implements MtsHtmlParser {
             return null;
         }
         int i = 0;
-        Map<String, String> properties = new java.util.LinkedHashMap<>(names.size());
+        Map<String, String> properties = new LinkedHashMap<>(names.size());
         for (Element e : values) {
             String value = e.html().trim();
             String name = names.get(i).html().trim();

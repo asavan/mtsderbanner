@@ -44,4 +44,14 @@ public class SmartfonInfo {
     public void setMainPhoto(String mainPhoto) {
         this.mainPhoto = mainPhoto;
     }
+
+    @Override
+    public String toString() {
+        return "SmartfonInfo{" +
+                "articul='" + articul + '\'' +
+                ", mainPhoto='" + mainPhoto + '\'' +
+                ", originalUrl='" + originalUrl + '\'' +
+                ", properties=" + properties +
+                '}';
+    }
 }

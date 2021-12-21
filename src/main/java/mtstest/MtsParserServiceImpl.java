@@ -17,7 +17,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class MtsParserServiceImpl implements MtsParser {
-    private static final String BASE_URL = "http://www.shop.mts.ru";
+    private static final String BASE_URL = "https://shop.mts.ru";
     private static final String BASE_DIR = ".";
     private static final Charset ENCODING = StandardCharsets.UTF_8;
     private static final String SEPARATOR = ";";
@@ -56,9 +56,11 @@ public class MtsParserServiceImpl implements MtsParser {
 
     @Override
     public void exit() throws InterruptedException {
-        log.info("Start Exiting...");
-        executorServicePhone.shutdown();
-        executorServicePhone.awaitTermination(5, TimeUnit.HOURS);
+        log.trace("Start Exiting...");
+        if (executorServicePhone != null) {
+            executorServicePhone.shutdown();
+            executorServicePhone.awaitTermination(5, TimeUnit.HOURS);
+        }
         log.info("Exit");
     }
 
@@ -113,7 +115,7 @@ public class MtsParserServiceImpl implements MtsParser {
         int len = categories.size();
         List<Callable<List<String>>> tasks = new ArrayList<>(pages);
         for (int i = 0; i < pages; i++) {
-            final String url = BASE_URL + "/" + typeName + "/?PAGEN_1=" + (i + 1);
+            final String url = BASE_URL + "/catalog/" + typeName + "/" + (i + 1) + "/";
             Callable<List<String>> task = () -> mtsHtmlParser.parsePAGENPage(url);
             tasks.add(task);
         }
@@ -134,7 +136,7 @@ public class MtsParserServiceImpl implements MtsParser {
         }
 
         report.save("./reports");
-        log.info(newLen);
+        log.debug("Category len " + newLen);
         long lEndTime = new Date().getTime();
         long difference = lEndTime - lStartTime;
         log.info("Completed in " + difference / 1000L);
@@ -158,7 +160,7 @@ public class MtsParserServiceImpl implements MtsParser {
     }
 
 
-    private class OnePageProcessor implements Consumer<SmartfonInfo> {
+    private static class OnePageProcessor implements Consumer<SmartfonInfo> {
 
         private final SimpleReport report;
         private final Set<String> categories;
@@ -185,7 +187,7 @@ public class MtsParserServiceImpl implements MtsParser {
             }
         }
 
-        log.info("Process...");
+        log.trace("Process...");
         for (Callable<T> t : tasks) {
             try {
                 T value;
@@ -199,7 +201,7 @@ public class MtsParserServiceImpl implements MtsParser {
                 log.error("Error...", e);
             }
         }
-        log.info("...Done");
+        log.trace("...Done");
     }
 
     private void processUrls(List<String> urls, Consumer<SmartfonInfo> processor) {

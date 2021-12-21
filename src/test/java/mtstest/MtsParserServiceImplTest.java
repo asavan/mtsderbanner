@@ -15,13 +15,14 @@ public class MtsParserServiceImplTest {
         SmartfonInfo info = MtsHtmlParserImpl.parseOnePage("https://shop.mts.ru/product/smartfon-apple-iphone-11-128gb-chernyj");
         assertNotNull(info);
         assertNotEquals("", info.getArticul());
-        System.out.println(info.getArticul());
+        System.out.println(info);
     }
 
     @Test
-    public void testMobileShort() throws IOException {
-        MtsParser m = new MtsParserServiceImpl(true, true, 11);
-        m.parseList("mobilnyye-telefony", 2);
+    public void testMobileShort() throws IOException, InterruptedException {
+        MtsParser m = new MtsParserServiceImpl(false, false, 1);
+        m.parseList("smartfony", 1);
+        m.exit();
     }
 
     @Test
@@ -39,23 +40,25 @@ public class MtsParserServiceImplTest {
     }
 
     @Test
-    public void testFullAsyncPages() throws IOException {
+    public void testFullAsyncPages() throws IOException, InterruptedException {
         MtsParser m = new MtsParserServiceImpl(true, false, 14);
         m.parseList("mobilnyye-telefony", 8);
         m.parseList("planshety", 11);
         m.parseList("smartfony", 26);
+        m.exit();
     }
 
     @Test
-    public void testFullAsyncPhones() throws IOException {
+    public void testFullAsyncPhones() throws IOException, InterruptedException {
         MtsParser m = new MtsParserServiceImpl(false, true, 12);
         m.parseList("mobilnyye-telefony", 8);
         m.parseList("planshety", 11);
         m.parseList("smartfony", 26);
+        m.exit();
     }
 
     @Test
-    public void testFullAsync() throws IOException {
+    public void testFullAsync() throws IOException, InterruptedException {
         testFullAsyncPages();
         testFullAsyncPhones();
     }
