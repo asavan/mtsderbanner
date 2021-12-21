@@ -17,12 +17,17 @@ import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletionService;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class MtsParserServiceImpl implements MtsParser {
-    private static final String BASE_URL = "https://shop.mts.ru";
+    static final String BASE_URL = "https://shop.mts.ru";
     private static final String BASE_DIR = ".";
     private static final Charset ENCODING = StandardCharsets.UTF_8;
     private static final String SEPARATOR = ";";
@@ -56,7 +61,7 @@ public class MtsParserServiceImpl implements MtsParser {
         } else {
             completionServicePhone = null;
         }
-        mtsHtmlParser = new MtsHtmlParserImpl();
+        mtsHtmlParser = new MtsHtmlParserImpl(BASE_URL);
     }
 
     @Override
@@ -195,7 +200,7 @@ public class MtsParserServiceImpl implements MtsParser {
         log.trace("Process...");
         for (Callable<T> t : tasks) {
             try {
-                T value;
+                final T value;
                 if (async) {
                     value = completionService.take().get();
                 } else {
@@ -210,10 +215,14 @@ public class MtsParserServiceImpl implements MtsParser {
     }
 
     private void processUrls(List<String> urls, Consumer<SmartfonInfo> processor) {
-        List<Callable<SmartfonInfo>> tasks2 = urls.stream()
+        if (urls.isEmpty()) {
+            log.warn("Empty list");
+            return;
+        }
+        List<Callable<SmartfonInfo>> tasks = urls.stream()
                 .map(it -> (Callable<SmartfonInfo>) () -> mtsHtmlParser.parseOne(it))
                 .collect(Collectors.toList());
 
-        processTasks(tasks2, asyncPhones, completionServicePhone, processor);
+        processTasks(tasks, asyncPhones, completionServicePhone, processor);
     }
 }

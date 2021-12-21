@@ -1,16 +1,9 @@
 package simplereport;
 
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-
 public class CsvReport extends AbstractSimpleReport {
     private static final char DELIMITER = ';';
-    private static final Charset ENCODING = StandardCharsets.UTF_8;
-
     private int rowNum = 0;
+    private final StringBuilder sb = new StringBuilder();
 
 
     public CsvReport(String fileName) {
@@ -66,23 +59,9 @@ public class CsvReport extends AbstractSimpleReport {
         sb.append(DELIMITER);
         return this;
     }
-
-
     @Override
-    public String save(String dir) throws IOException {
-        if (dir == null || dir.length() == 0) {
-            dir = "";
-        } else if (!dir.endsWith("/") && !dir.endsWith("\\")) {
-            dir = dir + '/';
-        }
-        String fullFileName = dir + fileName;
-
-        stringToFile(sb.toString(), fullFileName);
-
-        return fullFileName;
+    public String toString() {
+        return sb.toString();
     }
 
-    private static void stringToFile(String tx, String fileName) throws IOException {
-        Files.write( Paths.get(fileName), tx.getBytes(ENCODING));
-    }
 }

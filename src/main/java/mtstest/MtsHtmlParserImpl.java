@@ -21,29 +21,32 @@ import java.util.Map;
 public class MtsHtmlParserImpl implements MtsHtmlParser {
 
     private static final Logger log = LogManager.getLogger(MtsHtmlParserImpl.class);
-    private static final String BASE_URL = "https://shop.mts.ru";
+    private final String baseUrl;
 
+    public MtsHtmlParserImpl(String baseUrl) {
+        this.baseUrl = baseUrl;
+    }
 
     @Override
     public SmartfonInfo parseOne(String url) throws IOException {
-        return parseOnePage(url);
+        return parseOnePage(url, baseUrl);
     }
 
     @Override
     public List<String> parsePAGENPage(String url) throws IOException {
-        return parsePAGENPageStatic(url);
+        return parsePAGENPageStatic(url, baseUrl);
     }
 
-    public static List<String> parsePAGENPageStatic(String url) throws IOException {
+    public static List<String> parsePAGENPageStatic(String url, String baseUrl) throws IOException {
         List<String> urls = new ArrayList<>(20);
-        log.info(url);
+        log.debug(url);
         Document doc = setupSpider(url)
                 .timeout(10000).get();
         Elements phoneLink = doc.select(".card-product-description__heading");
         for (Element e : phoneLink) {
             String linkHref = e.attr("href").trim();
             log.trace(linkHref);
-            urls.add(BASE_URL + linkHref);
+            urls.add(baseUrl + linkHref);
         }
         return urls;
     }
@@ -55,7 +58,7 @@ public class MtsHtmlParserImpl implements MtsHtmlParser {
                 .cookie("qrator_jsid", "1640121185.251.epgsWGX8g3NjlVtu-28u85qqql4mdgpb0rl02s9erbfr1rqme");
     }
 
-    public static SmartfonInfo parseOnePage(String url) throws IOException {
+    public static SmartfonInfo parseOnePage(String url, String baseUrl) throws IOException {
         log.debug(url);
         SmartfonInfo info = new SmartfonInfo();
         info.setOriginalUrl(url);
@@ -67,7 +70,7 @@ public class MtsHtmlParserImpl implements MtsHtmlParser {
             log.error("Empty image " + url);
             return null;
         }
-        imageUrl = BASE_URL + imageUrl;
+        imageUrl = baseUrl + imageUrl;
         info.setMainPhoto(imageUrl);
 
 
@@ -90,6 +93,4 @@ public class MtsHtmlParserImpl implements MtsHtmlParser {
         info.setProperties(properties);
         return info;
     }
-
-
 }

@@ -1,18 +1,34 @@
 package mtstest;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 
 
 public class MtsParserServiceImplTest {
 
     @Test
+    public void testDateFormatter() {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("d/MMMM/yyyy HH:mm:ss");
+        String simple = simpleDateFormat.format(new Date());
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d/MMMM/yyyy HH:mm:ss");
+        String threadSafe = LocalDateTime.now().format(formatter);
+        System.out.println(simple);
+        assertEquals(simple, threadSafe);
+    }
+
+    @Test
     public void testParseOnePage() throws Exception {
-        SmartfonInfo info = MtsHtmlParserImpl.parseOnePage("https://shop.mts.ru/product/smartfon-apple-iphone-11-128gb-chernyj");
+        SmartfonInfo info = MtsHtmlParserImpl.parseOnePage(
+                "https://shop.mts.ru/product/smartfon-apple-iphone-11-128gb-chernyj", MtsParserServiceImpl.BASE_URL);
         assertNotNull(info);
         assertNotEquals("", info.getArticul());
         System.out.println(info);

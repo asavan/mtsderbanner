@@ -1,55 +1,51 @@
 package simplereport;
 
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 
 public abstract class AbstractSimpleReport implements SimpleReport {
-    final String fileName;
-    final StringBuilder sb = new StringBuilder();
-    private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("d/MMMM/yyyy HH:mm:ss");
+    private static final Charset ENCODING = StandardCharsets.UTF_8;
+    private final String fileName;
 
     AbstractSimpleReport(String fileName) {
         this.fileName = fileName;
     }
 
     @Override
-    public SimpleReport addCell(Object o) {
-        if (o instanceof Date) {
-            return addCell((Date) o);
-        }
-        addCell(o == null ? "" : o.toString());
-        return this;
-    }
-
-
-    @Override
-    public SimpleReport addCell(Date dt) {
-        addCell(dt == null ? "" : simpleDateFormat.format(dt));
-        return this;
-    }
-
-
-    @Override
-    public String toString() {
-        return sb.toString();
-    }
-
-    @Override
-    public SimpleReport addCells(List cells) {
-        for (Object cell : cells) {
+    public SimpleReport addCells(List<String> cells) {
+        for (String cell : cells) {
             addCell(cell);
         }
         return this;
     }
 
-
     @Override
-    public SimpleReport addCaptionRow(List cells) {
+    public SimpleReport addCaptionRow(List<String> cells) {
         addRow();
         addCells(cells);
         return this;
+    }
+
+    @Override
+    public String save(String dir) throws IOException {
+        if (dir == null || dir.length() == 0) {
+            dir = "";
+        } else if (!dir.endsWith("/") && !dir.endsWith("\\")) {
+            dir = dir + '/';
+        }
+        String fullFileName = dir + fileName;
+
+        stringToFile(toString(), fullFileName);
+
+        return fullFileName;
+    }
+
+    private static void stringToFile(String tx, String fileName) throws IOException {
+        Files.write( Paths.get(fileName), tx.getBytes(ENCODING));
     }
 
 }

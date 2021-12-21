@@ -1,21 +1,16 @@
 package simplereport;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
 
 public interface SimpleReport {
     SimpleReport addRow();
 
-    SimpleReport addCaptionRow(List cells);
+    SimpleReport addCaptionRow(List<String> cells);
 
     SimpleReport addCell(String s);
 
-    SimpleReport addCell(Object o);
-
-    SimpleReport addCell(Date dt);
-
-    SimpleReport addCells(List cells);
+    SimpleReport addCells(List<String> cells);
 
     SimpleReport skipCell();
 
