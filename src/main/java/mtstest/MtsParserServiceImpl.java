@@ -1,17 +1,22 @@
 package mtstest;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import simplereport.CsvReport;
 import simplereport.SimpleReport;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -72,9 +77,9 @@ public class MtsParserServiceImpl implements MtsParser {
         Path currentRelativePath = java.nio.file.Paths.get("");
         String s = currentRelativePath.toAbsolutePath().toString();
         log.info("Current relative path is: " + s);
-        File catFile = getCategoriesFile(name);
-        if (catFile.exists()) {
-            String cats = FileUtils.readFileToString(catFile, ENCODING);
+        Path catFilePath = getCategoriesFileName(name);
+        if (catFilePath.toFile().exists()) {
+            String cats = new String (Files.readAllBytes(catFilePath), ENCODING);
             String[] catsFromFile = cats.trim().split(DELIMITER);
             List<String> catList = Arrays.asList(catsFromFile);
             categories.addAll(catList);
@@ -85,8 +90,8 @@ public class MtsParserServiceImpl implements MtsParser {
         return report;
     }
 
-    private static File getCategoriesFile(String name) {
-        return new File(BASE_DIR, name + ".txt");
+    private static Path getCategoriesFileName(String name) {
+        return Paths.get(BASE_DIR, name + ".txt");
     }
 
     private static void addRowToReport(SimpleReport report, SmartfonInfo info, Set<String> categories) {
@@ -132,7 +137,7 @@ public class MtsParserServiceImpl implements MtsParser {
                 report.addCell(cat);
             }
             String catAsString = String.join(SEPARATOR, categories);
-            FileUtils.writeStringToFile(getCategoriesFile(typeName), catAsString, ENCODING);
+            Files.write(getCategoriesFileName(typeName), catAsString.getBytes(ENCODING));
         }
 
         report.save("./reports");

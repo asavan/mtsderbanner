@@ -1,14 +1,14 @@
 package simplereport;
 
-import org.apache.commons.io.FileUtils;
-
-import java.io.*;
+import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class CsvReport extends AbstractSimpleReport {
     private static final char DELIMITER = ';';
-    private static final String CHARSET_NAME = "cp1251";
-    private static final Charset ENCODING = Charset.forName("UTF-8");
+    private static final Charset ENCODING = StandardCharsets.UTF_8;
 
     private int rowNum = 0;
 
@@ -83,8 +83,6 @@ public class CsvReport extends AbstractSimpleReport {
     }
 
     private static void stringToFile(String tx, String fileName) throws IOException {
-        FileUtils.writeStringToFile(new File(fileName), tx, ENCODING);
+        Files.write( Paths.get(fileName), tx.getBytes(ENCODING));
     }
-
-
 }
