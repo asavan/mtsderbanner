@@ -1,7 +1,7 @@
 package mtstest;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -20,7 +20,7 @@ import java.util.Map;
  */
 public class MtsHtmlParserImpl implements MtsHtmlParser {
 
-    private static final Logger log = LogManager.getLogger(MtsHtmlParserImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(MtsHtmlParserImpl.class);
     private final String baseUrl;
 
     public MtsHtmlParserImpl(String baseUrl) {
@@ -78,8 +78,8 @@ public class MtsHtmlParserImpl implements MtsHtmlParser {
         Elements values = doc.select(".tech-specs .value");
         if (names.size() != values.size()) {
             log.error("ERROR " + url);
-            log.error(names.size());
-            log.error(values.size());
+            log.error("Names size " + names.size());
+            log.error("Values size " + values.size());
             return null;
         }
         int i = 0;
