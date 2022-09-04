@@ -28,7 +28,7 @@ public class MtsParserServiceImplTest {
     @Test
     public void testParseOnePage() throws Exception {
         SmartfonInfo info = MtsHtmlParserImpl.parseOnePage(
-                "https://shop.mts.ru/product/smartfon-apple-iphone-11-128gb-chernyj", MtsParserServiceImpl.BASE_URL);
+                "https://shop.mts.ru/product/smartfon-samsung-galaxy-a52-8-128gb-sinij-khoroshee-sostojanie", MtsParserServiceImpl.BASE_URL);
         assertNotNull(info);
         assertNotEquals("", info.getArticul());
         System.out.println(info);

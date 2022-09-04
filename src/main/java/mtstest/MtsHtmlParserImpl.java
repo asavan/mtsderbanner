@@ -54,12 +54,12 @@ public class MtsHtmlParserImpl implements MtsHtmlParser {
     private static Connection setupSpider(String url) {
         return Jsoup.connect(url)
                 .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
-                .cookie("qrator_jsr", "1640121185.251.epgsWGX8g3NjlVtu-jmh4do4a7k8hsg7ge62tvndjo2jop1lb-00")
-                .cookie("qrator_jsid", "1640121185.251.epgsWGX8g3NjlVtu-28u85qqql4mdgpb0rl02s9erbfr1rqme");
+                .cookie("api_token", "ee1a5312a958f89f7e19073468a01039352e33312e3138382e3731302e39343636393630302031363632333032333234")
+                .cookie("qrator_jsid", "1662302323.189.n5ieE2gLOrCDILiN-2gh61rooj43iolnmk38sf012ik2cbdh9");
     }
 
     public static SmartfonInfo parseOnePage(String url, String baseUrl) throws IOException {
-        log.debug(url);
+        log.info(url);
         SmartfonInfo info = new SmartfonInfo();
         info.setOriginalUrl(url);
 

@@ -126,6 +126,7 @@ public class MtsParserServiceImpl implements MtsParser {
         List<Callable<List<String>>> tasks = new ArrayList<>(pages);
         for (int i = 0; i < pages; i++) {
             final String url = BASE_URL + "/catalog/" + typeName + "/" + (i + 1) + "/";
+            log.info(url);
             Callable<List<String>> task = () -> mtsHtmlParser.parsePAGENPage(url);
             tasks.add(task);
         }
