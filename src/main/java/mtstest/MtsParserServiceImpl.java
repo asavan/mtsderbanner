@@ -6,8 +6,6 @@ import simplereport.CsvReport;
 import simplereport.SimpleReport;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -29,7 +27,6 @@ import java.util.stream.Collectors;
 public class MtsParserServiceImpl implements MtsParser {
     static final String BASE_URL = "https://shop.mts.ru";
     private static final String BASE_DIR = ".";
-    private static final Charset ENCODING = StandardCharsets.UTF_8;
     private static final String SEPARATOR = ";";
     private static final String DELIMITER = "\\s*;\\s*";
     private static final String[] DEFAULT_CATEGORIES = {"Артикул", "Фоточка", "Урл в магазине"};
@@ -67,11 +64,12 @@ public class MtsParserServiceImpl implements MtsParser {
     @Override
     public void exit() throws InterruptedException {
         log.trace("Start Exiting...");
+        boolean wait = false;
         if (executorServicePhone != null) {
             executorServicePhone.shutdown();
-            executorServicePhone.awaitTermination(5, TimeUnit.HOURS);
+            wait = executorServicePhone.awaitTermination(5, TimeUnit.HOURS);
         }
-        log.info("Exit");
+        log.info("Exit " + wait);
     }
 
 
@@ -84,15 +82,14 @@ public class MtsParserServiceImpl implements MtsParser {
         log.info("Current relative path is: " + s);
         Path catFilePath = getCategoriesFileName(name);
         if (catFilePath.toFile().exists()) {
-            String cats = new String (Files.readAllBytes(catFilePath), ENCODING);
+            String cats = Files.readString(catFilePath);
             String[] catsFromFile = cats.trim().split(DELIMITER);
             List<String> catList = Arrays.asList(catsFromFile);
             categories.addAll(catList);
             mainCat.addAll(catList);
         }
 
-        report.addCaptionRow(mainCat);
-        return report;
+        return report.addCaptionRow(mainCat);
     }
 
     private static Path getCategoriesFileName(String name) {
@@ -101,10 +98,10 @@ public class MtsParserServiceImpl implements MtsParser {
 
     private static void addRowToReport(SimpleReport report, SmartfonInfo info, Set<String> categories) {
         categories.addAll(info.getProperties().keySet());
-        report.addRow();
-        report.addCell(info.getArticul());
-        report.addCell(info.getMainPhoto());
-        report.addCell(info.getOriginalUrl());
+        report.addRow()
+                .addCell(info.getArticul())
+                .addCell(info.getMainPhoto())
+                .addCell(info.getOriginalUrl());
         for (String category : categories) {
             String value = info.getProperties().get(category);
             if (value == null) {
@@ -143,12 +140,13 @@ public class MtsParserServiceImpl implements MtsParser {
                 report.addCell(cat);
             }
             String catAsString = String.join(SEPARATOR, categories);
-            Files.write(getCategoriesFileName(typeName), catAsString.getBytes(ENCODING));
+            Files.writeString(getCategoriesFileName(typeName), catAsString);
         }
 
-        report.save("./reports");
-        log.debug("Category len " + newLen);
+        String saved = report.save("./reports");
         long lEndTime = new Date().getTime();
+        log.debug("Category len " + newLen);
+        log.info("Saved to " + saved);
         long difference = lEndTime - lStartTime;
         log.info("Completed in " + difference / 1000L);
     }

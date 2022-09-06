@@ -1,14 +1,11 @@
 package simplereport;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
 public abstract class AbstractSimpleReport implements SimpleReport {
-    private static final Charset ENCODING = StandardCharsets.UTF_8;
     private final String fileName;
 
     AbstractSimpleReport(String fileName) {
@@ -25,9 +22,7 @@ public abstract class AbstractSimpleReport implements SimpleReport {
 
     @Override
     public SimpleReport addCaptionRow(List<String> cells) {
-        addRow();
-        addCells(cells);
-        return this;
+        return addRow().addCells(cells);
     }
 
     @Override
@@ -45,7 +40,7 @@ public abstract class AbstractSimpleReport implements SimpleReport {
     }
 
     private static void stringToFile(String tx, String fileName) throws IOException {
-        Files.write( Paths.get(fileName), tx.getBytes(ENCODING));
+        Files.writeString( Paths.get(fileName), tx);
     }
 
 }
