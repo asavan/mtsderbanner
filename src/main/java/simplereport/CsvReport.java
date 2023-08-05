@@ -7,7 +7,7 @@ public class CsvReport extends AbstractSimpleReport {
 
 
     public CsvReport(String fileName) {
-        super(fileName + ".csv");
+        this(fileName, "csv");
     }
 
     public CsvReport(String fileName, String ext) {

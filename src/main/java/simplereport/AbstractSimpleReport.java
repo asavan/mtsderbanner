@@ -27,7 +27,7 @@ public abstract class AbstractSimpleReport implements SimpleReport {
 
     @Override
     public String save(String dir) throws IOException {
-        if (dir == null || dir.length() == 0) {
+        if (dir == null || dir.isEmpty()) {
             dir = "";
         } else if (!dir.endsWith("/") && !dir.endsWith("\\")) {
             dir = dir + '/';
